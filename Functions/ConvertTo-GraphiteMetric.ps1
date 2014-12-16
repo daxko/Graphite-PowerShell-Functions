@@ -62,10 +62,27 @@ Function ConvertTo-GraphiteMetric
         $MetricToClean = $MetricToClean -replace "\\\\$($env:COMPUTERNAME)\\","\\$($HostName)\"
     }
 
+    if ($NicePhysicalDisks)
+    {
+        Write-Verbose "NicePhyiscalDisks switch is enabled"
+
+        # Get Drive Letter
+        $driveLetter = ([regex]'physicaldisk\.[0-9]+([a-zA-Z])').match($cleanNameOfSample).groups[1].value
+
+        # Add -drive to the drive letter
+        $cleanNameOfSample = $cleanNameOfSample -replace 'physicaldisk\.[0-9]+([a-zA-Z])', ('physicaldisk.' + $driveLetter + '-drive')
+
+        # Get the new cleaned drive letter
+        $niceDriveLetter = ([regex]'physicaldisk\.(.*)\.avg\.').match($cleanNameOfSample).groups[1].value
+
+        # Remvoe the .avg. section
+        $cleanNameOfSample = $cleanNameOfSample -replace 'physicaldisk\.(.*)\.avg\.', ('physicaldisk.' + $niceDriveLetter + '.')
+    }
+
     if ($MetricReplacementHash -ne $null)
     {
         $cleanNameOfSample = $MetricToClean
-        
+
         ForEach ($m in $MetricReplacementHash.GetEnumerator())
         {
             If ($m.Value -cmatch '#{CAPTUREGROUP}')
@@ -128,23 +145,6 @@ Function ConvertTo-GraphiteMetric
     {
         Write-Verbose "Removing Underscores as the switch is enabled"
         $cleanNameOfSample = $cleanNameOfSample -replace '_', ''
-    }
-
-    if ($NicePhysicalDisks)
-    {
-        Write-Verbose "NicePhyiscalDisks switch is enabled"
-
-        # Get Drive Letter
-        $driveLetter = ([regex]'physicaldisk\.[0-9]+([a-zA-Z])').match($cleanNameOfSample).groups[1].value
-
-        # Add -drive to the drive letter
-        $cleanNameOfSample = $cleanNameOfSample -replace 'physicaldisk\.[0-9]+([a-zA-Z])', ('physicaldisk.' + $driveLetter + '-drive')
-
-        # Get the new cleaned drive letter
-        $niceDriveLetter = ([regex]'physicaldisk\.(.*)\.avg\.').match($cleanNameOfSample).groups[1].value
-
-        # Remvoe the .avg. section
-        $cleanNameOfSample = $cleanNameOfSample -replace 'physicaldisk\.(.*)\.avg\.', ('physicaldisk.' + $niceDriveLetter + '.')
     }
 
     Write-Output $cleanNameOfSample
