@@ -55,7 +55,7 @@ Function Start-StatsToGraphite
         [switch]$TestMode,
         [switch]$ExcludePerfCounters = $false,
         [switch]$SqlMetrics = $false,
-        $configPath = "C:\Windows\System32\WindowsPowershell\Graphite-PowerShell\StatsToGraphiteConfig.xml"
+        $configPath = "C:\Windows\System32\WindowsPowershell\v1.0\Modules\Graphite-PowerShell\StatsToGraphiteConfig.xml"
     )
 
     # Run The Load XML Config Function
