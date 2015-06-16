@@ -2,6 +2,8 @@
 
 A group of PowerShell functions that allow you to send Windows Performance counters to a Graphite Server, all configurable from a simple XML file.
 
+[![GitHub Version](https://img.shields.io/github/release/MattHodge/Graphite-PowerShell-Functions.svg)](https://github.com/MattHodge/Graphite-PowerShell-Functions/releases)
+
 More details at [http://www.hodgkins.net.au/mswindows/using-powershell-to-send-metrics-graphite/](http://www.hodgkins.net.au/mswindows/using-powershell-to-send-metrics-graphite/)
 
 ## Features
@@ -17,6 +19,7 @@ More details at [http://www.hodgkins.net.au/mswindows/using-powershell-to-send-m
 * Additional functions are exposed that allow you to send data to Graphite from PowerShell easily. [Here](#functions) is the list of included functions
 * Script can be installed to run as a service
 * Installable by Chef Cookbook [which is available here](https://github.com/tas50/chef-graphite_powershell_functions/)
+* Installable by Puppet [which is available here](https://forge.puppetlabs.com/opentable/graphite_powershell)
 * Supports Hosted Graphite (https://www.hostedgraphite.com)
 
 ## Installation

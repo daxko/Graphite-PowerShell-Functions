@@ -56,27 +56,20 @@ Function ConvertTo-GraphiteMetric
         [System.Collections.Specialized.OrderedDictionary]$MetricReplacementHash
     )
 
+    # Setup booleen for if we are changing hostname
+    $renameHost = $false
+
     # If HostName is being overwritten
     if ($HostName -ne $env:COMPUTERNAME)
     {
-        $MetricToClean = $MetricToClean -replace "\\\\$($env:COMPUTERNAME)\\","\\$($HostName)\"
-    }
+        # Generate a GUID for the host name which we will then replace later. This needs to be done so the regex rules applied to the metric do not mess with the hostname the user requests. (Issue #37).
+        $hostGuid = ([guid]::NewGuid()).ToString().Replace('-','')
 
-    if ($NicePhysicalDisks)
-    {
-        Write-Verbose "NicePhyiscalDisks switch is enabled"
+        # Set the host name to the hostGuid
+        $MetricToClean = $MetricToClean -replace "\\\\$($env:COMPUTERNAME)\\","\\$($hostGuid)\"
 
-        # Get Drive Letter
-        $driveLetter = ([regex]'physicaldisk\.[0-9]+([a-zA-Z])').match($cleanNameOfSample).groups[1].value
+        $renameHost = $true
 
-        # Add -drive to the drive letter
-        $cleanNameOfSample = $cleanNameOfSample -replace 'physicaldisk\.[0-9]+([a-zA-Z])', ('physicaldisk.' + $driveLetter + '-drive')
-
-        # Get the new cleaned drive letter
-        $niceDriveLetter = ([regex]'physicaldisk\.(.*)\.avg\.').match($cleanNameOfSample).groups[1].value
-
-        # Remvoe the .avg. section
-        $cleanNameOfSample = $cleanNameOfSample -replace 'physicaldisk\.(.*)\.avg\.', ('physicaldisk.' + $niceDriveLetter + '.')
     }
 
     if ($MetricReplacementHash -ne $null)
@@ -145,6 +138,30 @@ Function ConvertTo-GraphiteMetric
     {
         Write-Verbose "Removing Underscores as the switch is enabled"
         $cleanNameOfSample = $cleanNameOfSample -replace '_', ''
+    }
+
+    if ($NicePhysicalDisks)
+    {
+        Write-Verbose "NicePhyiscalDisks switch is enabled"
+
+        # Get Drive Letter
+        $driveLetter = ([regex]'physicaldisk\.\d([a-zA-Z])').match($cleanNameOfSample).groups[1].value
+
+        # Add -drive to the drive letter
+        $cleanNameOfSample = $cleanNameOfSample -replace 'physicaldisk\.\d([a-zA-Z])', ('physicaldisk.' + $driveLetter + '-drive')
+
+        # Get the new cleaned drive letter
+        $niceDriveLetter = ([regex]'physicaldisk\.(.*)\.avg\.').match($cleanNameOfSample).groups[1].value
+
+        # Remvoe the .avg. section
+        $cleanNameOfSample = $cleanNameOfSample -replace 'physicaldisk\.(.*)\.avg\.', ('physicaldisk.' + $niceDriveLetter + '.')
+    }
+
+    # If $hostGuid has been generated, replace the guid inside the metrics with the correct HostName
+    if ($renameHost)
+    {
+        Write-Verbose "Replacing hostGuid '$($hostGuid)' with requested Hostname '$($HostName)'"
+        $cleanNameOfSample = $cleanNameOfSample -replace $hostGuid,$HostName
     }
 
     Write-Output $cleanNameOfSample
