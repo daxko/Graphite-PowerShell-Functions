@@ -19,6 +19,9 @@ Function Start-StatsToGraphite
     .Parameter SqlMetrics
         Includes SQL Metrics defined in XML config
 
+    .Parameter configPath
+        Use a different configuration file
+
     .Example
         PS> Start-StatsToGraphite
 
@@ -51,7 +54,8 @@ Function Start-StatsToGraphite
         [Parameter(Mandatory = $false)]
         [switch]$TestMode,
         [switch]$ExcludePerfCounters = $false,
-        [switch]$SqlMetrics = $false
+        [switch]$SqlMetrics = $false,
+        $configPath = "C:\Windows\System32\WindowsPowershell\Graphite-PowerShell\StatsToGraphiteConfig.xml"
     )
 
     # Run The Load XML Config Function
